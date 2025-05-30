@@ -13,6 +13,21 @@
       width: 100vw;
       height: 100vh;
     }
+    .progress-bar {
+      display: block;
+      width: 100%;
+      height: 4px;
+      background-color: #ccc;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    .update-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #3f51b5;
+      transition: width 0.3s;
+    }
     #custom-ar-button {
       position: absolute;
       bottom: 16px;
@@ -26,6 +41,16 @@
       font-size: 16px;
       cursor: pointer;
       z-index: 10;
+      display: none; /* fallback only if needed */
+    }
+    #ar-prompt {
+      position: absolute;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    #ar-prompt img {
+      height: 64px;
     }
   </style>
 </head>
@@ -43,23 +68,39 @@
     shadow-intensity="1" 
     autoplay
   >
-    <div class="progress-bar hide" slot="progress-bar">
-      <div class="update-bar"></div>
+    <!-- Progress Bar -->
+    <div class="progress-bar" slot="progress-bar">
+      <div class="update-bar" id="update-bar"></div>
     </div>
+
+    <!-- Built-in AR Button -->
+    <button slot="ar-button" id="ar-button">
+      View in your space
+    </button>
+
+    <!-- AR Prompt -->
     <div id="ar-prompt">
       <img src="https://modelviewer.dev/shared-assets/icons/hand.png" alt="AR prompt icon">
     </div>
   </model-viewer>
 
-  <!-- Regular Button to Trigger AR -->
+  <!-- Optional Custom Button (if built-in one fails) -->
   <button id="custom-ar-button">View in your space</button>
 
   <script>
     const modelViewer = document.querySelector("#modelViewer");
-    const arButton = document.querySelector("#custom-ar-button");
+    const customARButton = document.querySelector("#custom-ar-button");
+    const updateBar = document.querySelector("#update-bar");
 
-    arButton.addEventListener("click", () => {
+    // Custom button (fallback)
+    customARButton.addEventListener("click", () => {
       modelViewer.activateAR();
+    });
+
+    // Update progress bar
+    modelViewer.addEventListener('progress', (event) => {
+      const progress = event.detail.totalProgress;
+      updateBar.style.width = `${progress * 100}%`;
     });
   </script>
 
