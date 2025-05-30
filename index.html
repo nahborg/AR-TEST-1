@@ -2,12 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Test Model</title>
+    <title>View in AR</title>
     <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
     <style>
       body {
         margin: 0;
-        background: #eee;
+        background: #f4f4f4;
       }
       model-viewer {
         width: 100vw;
@@ -34,21 +34,22 @@
     </style>
   </head>
   <body>
-    <model-viewer
+    <model-viewer 
       src="RAT_V.1.glb"
-      ar
-      ar-modes="scene-viewer webxr quick-look"
-      ar-scale="auto"
-      camera-controls
-      auto-rotate
-      alt="Rat model"
+      ar 
+      ar-modes="webxr scene-viewer quick-look" 
+      camera-controls 
+      tone-mapping="neutral" 
+      poster="poster.webp" 
+      shadow-intensity="1" 
+      autoplay
     >
-      <!-- AR Button -->
+      <div class="progress-bar hide" slot="progress-bar">
+        <div class="update-bar"></div>
+      </div>
       <button slot="ar-button" id="ar-button">View in your space</button>
-
-      <!-- AR Prompt (e.g. hand icon) -->
       <div id="ar-prompt">
-        <img src="https://modelviewer.dev/shared-assets/icons/hand.png" alt="AR Prompt" />
+        <img src="https://modelviewer.dev/shared-assets/icons/hand.png" alt="AR prompt icon">
       </div>
     </model-viewer>
   </body>
