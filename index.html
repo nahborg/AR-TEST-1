@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>View in AR</title>
+  <title>Model Variants</title>
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <link rel="stylesheet" href="styles.css" />
   <style>
-    #model-selector {
+    #variant-selector {
       position: absolute;
       top: 16px;
       left: 16px;
@@ -19,11 +19,11 @@
 </head>
 <body>
 
-  <!-- Model Selector Dropdown -->
-  <select id="model-selector">
-    <option value="RAT_V.1.glb">RAT</option>
-    <option value="SIO_V.1.glb">SIO</option>
-    <option value="OLANA_V.1.glb">OLANA</option>
+  <!-- Variant Selector -->
+  <select id="variant-selector">
+    <option value="RAT">RAT</option>
+    <option value="SIO">SIO</option>
+    <option value="OLANA">OLANA</option>
   </select>
 
   <!-- Model Viewer -->
@@ -38,17 +38,14 @@
     shadow-intensity="1" 
     autoplay
   >
-    <!-- Progress Bar -->
     <div class="progress-bar hide" slot="progress-bar">
       <div class="update-bar" id="update-bar"></div>
     </div>
 
-    <!-- AR Button using your custom icon -->
     <button slot="ar-button" id="ar-button">
       View in your space
     </button>
 
-    <!-- Animated AR Prompt -->
     <div id="ar-prompt">
       <img src="https://modelviewer.dev/shared-assets/icons/hand.png" alt="AR prompt icon">
     </div>
@@ -56,27 +53,33 @@
 
   <script>
     const modelViewer = document.querySelector("#modelViewer");
+    const variantSelector = document.querySelector("#variant-selector");
     const updateBar = document.querySelector("#update-bar");
-    const selector = document.querySelector("#model-selector");
 
-    // Update model source when selected
-    selector.addEventListener("change", () => {
-      modelViewer.src = selector.value;
-    });
-
-    // Update progress bar width
+    // Update progress bar
     modelViewer.addEventListener('progress', (event) => {
       const progress = event.detail.totalProgress;
       updateBar.style.width = `${progress * 100}%`;
     });
 
-    // Automatically play the first animation on load
+    // Play first animation if available
     modelViewer.addEventListener("load", () => {
       const animations = modelViewer.availableAnimations;
       if (animations && animations.length > 0) {
         modelViewer.animationName = animations[0];
         modelViewer.play();
       }
+
+      // Optional: auto-select first variant
+      const variants = modelViewer.availableVariants;
+      if (variants.length > 0) {
+        modelViewer.variantName = variants[0];
+      }
+    });
+
+    // Change variant
+    variantSelector.addEventListener("change", () => {
+      modelViewer.variantName = variantSelector.value;
     });
   </script>
 
