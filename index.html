@@ -13,7 +13,7 @@
       width: 100vw;
       height: 100vh;
     }
-    #custom-ar-button {
+    #ar-button {
       position: absolute;
       bottom: 16px;
       left: 50%;
@@ -25,14 +25,17 @@
       border-radius: 8px;
       font-size: 16px;
       cursor: pointer;
-      z-index: 10;
+    }
+    #ar-prompt {
+      position: absolute;
+      top: 16px;
+      right: 16px;
     }
   </style>
 </head>
 <body>
 
   <model-viewer 
-    id="modelViewer"
     src="RAT_V.1.glb"
     ios-src="RAT_V.1.usdz"
     ar 
@@ -46,22 +49,13 @@
     <div class="progress-bar hide" slot="progress-bar">
       <div class="update-bar"></div>
     </div>
+
+    <button slot="ar-button" id="ar-button">View in your space</button>
+
     <div id="ar-prompt">
       <img src="https://modelviewer.dev/shared-assets/icons/hand.png" alt="AR prompt icon">
     </div>
   </model-viewer>
-
-  <!-- Regular Button to Trigger AR -->
-  <button id="custom-ar-button">View in your space</button>
-
-  <script>
-    const modelViewer = document.querySelector("#modelViewer");
-    const arButton = document.querySelector("#custom-ar-button");
-
-    arButton.addEventListener("click", () => {
-      modelViewer.activateAR();
-    });
-  </script>
 
 </body>
 </html>
