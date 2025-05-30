@@ -1,125 +1,59 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Three Draggable Models</title>
-  <style>
-    body { margin: 0; overflow: hidden; }
-    canvas { display: block; }
-  </style>
+  <meta charset="UTF-8" />
+  <title>View in AR</title>
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <script type="module">
-    import * as THREE from 'https://cdn.skypack.dev/three@0.150.1';
-    import { GLTFLoader } from 'https://cdn.skypack.dev/three@0.150.1/examples/jsm/loaders/GLTFLoader.js';
-    import { OrbitControls } from 'https://cdn.skypack.dev/three@0.150.1/examples/jsm/controls/OrbitControls.js';
 
-    let camera, scene, renderer, controls;
-    let raycaster = new THREE.Raycaster();
-    let mouse = new THREE.Vector2();
-    let selectedObject = null;
-    let offset = new THREE.Vector3();
-    let draggableModels = [];
+  <model-viewer 
+    id="modelViewer"
+    src="RAT_V.1.glb"
+    ar 
+    ar-modes="scene-viewer webxr quick-look" 
+    camera-controls 
+    tone-mapping="neutral" 
+    poster="poster.webp" 
+    shadow-intensity="1" 
+    autoplay
+  >
+    <!-- Progress Bar -->
+    <div class="progress-bar hide" slot="progress-bar">
+      <div class="update-bar" id="update-bar"></div>
+    </div>
 
-    init();
-    animate();
+    <!-- AR Button using your custom icon -->
+    <button slot="ar-button" id="ar-button">
+      View in your space
+    </button>
 
-    function init() {
-      scene = new THREE.Scene();
-      scene.background = new THREE.Color(0xf0f0f0);
+    <!-- Animated AR Prompt -->
+    <div id="ar-prompt">
+      <img src="https://modelviewer.dev/shared-assets/icons/hand.png" alt="AR prompt icon">
+    </div>
+  </model-viewer>
 
-      camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-      camera.position.set(0, 2, 5);
+  <script>
+    const modelViewer = document.querySelector("#modelViewer");
+    const updateBar = document.querySelector("#update-bar");
 
-      renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      document.body.appendChild(renderer.domElement);
+    // Update progress bar width
+    modelViewer.addEventListener('progress', (event) => {
+      const progress = event.detail.totalProgress;
+      updateBar.style.width = `${progress * 100}%`;
+    });
 
-      controls = new OrbitControls(camera, renderer.domElement);
-      controls.enableDamping = true;
-
-      const light = new THREE.HemisphereLight(0xffffff, 0x444444);
-      light.position.set(0, 20, 0);
-      scene.add(light);
-
-      const gridHelper = new THREE.GridHelper(10, 10);
-      scene.add(gridHelper);
-
-      const loader = new GLTFLoader();
-
-      // Load 3 models
-      const models = [
-        { file: 'RAT_V.1.glb', positionX: -2 },
-        { file: 'SIO_V.1.glb', positionX: 0 },
-        { file: 'OLANA_V.1.glb', positionX: 2 },
-      ];
-
-      models.forEach(({ file, positionX }) => {
-        loader.load(file, (gltf) => {
-          const model = gltf.scene;
-          model.position.set(positionX, 0, 0);
-          scene.add(model);
-          draggableModels.push(model);
-        });
-      });
-
-      window.addEventListener('resize', onWindowResize);
-      window.addEventListener('mousedown', onMouseDown);
-      window.addEventListener('mouseup', onMouseUp);
-      window.addEventListener('mousemove', onMouseMove);
-    }
-
-    function onWindowResize() {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    }
-
-    function onMouseDown(event) {
-      updateMouse(event);
-
-      raycaster.setFromCamera(mouse, camera);
-      const intersects = raycaster.intersectObjects(draggableModels, true);
-
-      if (intersects.length > 0) {
-        selectedObject = intersects[0].object;
-        while (!draggableModels.includes(selectedObject.parent)) {
-          selectedObject = selectedObject.parent;
-        }
-        const intersectionPoint = intersects[0].point;
-        offset.copy(selectedObject.position).sub(intersectionPoint);
-        controls.enabled = false;
+    // Quick fix: Automatically play first animation
+    modelViewer.addEventListener("load", () => {
+      const animations = modelViewer.availableAnimations;
+      if (animations && animations.length > 0) {
+        modelViewer.animationName = animations[0];
+        modelViewer.play();
       }
-    }
-
-    function onMouseMove(event) {
-      if (!selectedObject) return;
-
-      updateMouse(event);
-      raycaster.setFromCamera(mouse, camera);
-
-      const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-      const intersectPoint = new THREE.Vector3();
-
-      raycaster.ray.intersectPlane(plane, intersectPoint);
-      selectedObject.position.copy(intersectPoint.add(offset));
-    }
-
-    function onMouseUp() {
-      selectedObject = null;
-      controls.enabled = true;
-    }
-
-    function updateMouse(event) {
-      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    }
-
-    function animate() {
-      requestAnimationFrame(animate);
-      controls.update();
-      renderer.render(scene, camera);
-    }
+    });
   </script>
+
 </body>
 </html>
