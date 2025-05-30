@@ -5,9 +5,28 @@
   <title>View in AR</title>
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    #model-selector {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      z-index: 10;
+      padding: 6px 12px;
+      font-size: 16px;
+      border-radius: 8px;
+    }
+  </style>
 </head>
 <body>
 
+  <!-- Model Selector Dropdown -->
+  <select id="model-selector">
+    <option value="RAT_V.1.glb">RAT</option>
+    <option value="SIO_V.1.glb">SIO</option>
+    <option value="OLANA_V.1.glb">OLANA</option>
+  </select>
+
+  <!-- Model Viewer -->
   <model-viewer 
     id="modelViewer"
     src="RAT_V.1.glb"
@@ -38,6 +57,12 @@
   <script>
     const modelViewer = document.querySelector("#modelViewer");
     const updateBar = document.querySelector("#update-bar");
+    const selector = document.querySelector("#model-selector");
+
+    // Update model source when selected
+    selector.addEventListener("change", () => {
+      modelViewer.src = selector.value;
+    });
 
     // Update progress bar width
     modelViewer.addEventListener('progress', (event) => {
@@ -45,7 +70,7 @@
       updateBar.style.width = `${progress * 100}%`;
     });
 
-    // Quick fix: Automatically play first animation
+    // Automatically play the first animation on load
     modelViewer.addEventListener("load", () => {
       const animations = modelViewer.availableAnimations;
       if (animations && animations.length > 0) {
