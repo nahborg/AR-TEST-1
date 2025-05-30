@@ -24,7 +24,7 @@
       z-index: 0;
     }
 
-    /* 🔳 Optional grain overlay */
+    /* 🔳 Grain overlay */
     #grain {
       position: fixed;
       top: 0;
@@ -37,7 +37,6 @@
       opacity: 0.05;
       pointer-events: none;
       z-index: 2;
-
       animation: grainMove 10s linear infinite;
     }
 
@@ -50,7 +49,7 @@
       }
     }
 
-    /* Variant dropdown */
+    /* 🔽 Variant Selector */
     #variant-selector {
       position: absolute;
       top: 16px;
@@ -61,25 +60,33 @@
       border-radius: 8px;
     }
 
-    /* Exposure Slider */
-    #exposure-slider {
-      position: absolute;
-      bottom: 64px;
-      left: 16px;
-      z-index: 3;
-      width: 160px;
-    }
-
-    /* Grain Opacity Slider */
-    #grain-slider {
+    /* ⚙️ Controls panel */
+    #controls {
       position: absolute;
       bottom: 16px;
       left: 16px;
       z-index: 3;
-      width: 160px;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 12px;
+      border-radius: 12px;
+      color: white;
+      font-family: sans-serif;
+      font-size: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 180px;
     }
 
-    /* 3D viewer layer */
+    #controls label {
+      margin-bottom: 2px;
+    }
+
+    #controls input[type="range"] {
+      width: 100%;
+    }
+
+    /* 🧊 Model Viewer */
     model-viewer {
       position: absolute;
       top: 0;
@@ -109,11 +116,16 @@
     <option value="OLANA">OLANA</option>
   </select>
 
-  <!-- 💡 Exposure Slider -->
-  <input type="range" id="exposure-slider" min="0.1" max="3" step="0.1" value="1" title="Lighting Exposure" />
+  <!-- ⚙️ Controls UI -->
+  <div id="controls">
+    <!-- 🔆 Exposure Control -->
+    <label for="exposure-slider">Lighting Exposure</label>
+    <input type="range" id="exposure-slider" min="0.1" max="3" step="0.1" value="1" />
 
-  <!-- 🌫️ Grain Opacity Slider -->
-  <input type="range" id="grain-slider" min="0" max="0.5" step="0.01" value="0.05" title="Grain Opacity" />
+    <!-- 🌫️ Grain Opacity Control -->
+    <label for="grain-slider">Grain Opacity</label>
+    <input type="range" id="grain-slider" min="0" max="0.5" step="0.01" value="0.05" />
+  </div>
 
   <!-- 🧊 Model Viewer -->
   <model-viewer 
@@ -142,6 +154,7 @@
     </div>
   </model-viewer>
 
+  <!-- 🔧 Scripts -->
   <script>
     const modelViewer = document.querySelector("#modelViewer");
     const variantSelector = document.querySelector("#variant-selector");
@@ -151,7 +164,7 @@
     const grainSlider = document.querySelector('#grain-slider');
     const exposureSlider = document.querySelector('#exposure-slider');
 
-    // Set initial values
+    // Initialize values
     grain.style.opacity = grainSlider.value;
     modelViewer.exposure = exposureSlider.value;
 
@@ -160,9 +173,11 @@
       grain.style.opacity = grainSlider.value;
     });
 
-    // Exposure control
+    // Exposure control (scene + environment)
     exposureSlider.addEventListener('input', () => {
-      modelViewer.exposure = exposureSlider.value;
+      const exposureValue = exposureSlider.value;
+      modelViewer.exposure = exposureValue;
+      modelViewer.setAttribute('exposure', exposureValue);
     });
 
     // Update progress bar
