@@ -4,9 +4,52 @@
     <meta charset="UTF-8" />
     <title>Test Model</title>
     <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        background: #eee;
+      }
+      model-viewer {
+        width: 100vw;
+        height: 100vh;
+      }
+      #ar-button {
+        position: absolute;
+        bottom: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 12px 24px;
+        background-color: #3f51b5;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      #ar-prompt {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+      }
+    </style>
   </head>
-  <body style="margin:0; background:#eee;">
-    <model-viewer src="RAT_V.1.glb" ar camera-controls auto-rotate style="width: 100vw; height: 100vh;" alt="Rat model">
+  <body>
+    <model-viewer
+      src="RAT_V.1.glb"
+      ar
+      ar-modes="scene-viewer webxr quick-look"
+      ar-scale="auto"
+      camera-controls
+      auto-rotate
+      alt="Rat model"
+    >
+      <!-- AR Button -->
+      <button slot="ar-button" id="ar-button">View in your space</button>
+
+      <!-- AR Prompt (e.g. hand icon) -->
+      <div id="ar-prompt">
+        <img src="https://modelviewer.dev/shared-assets/icons/hand.png" alt="AR Prompt" />
+      </div>
     </model-viewer>
   </body>
 </html>
