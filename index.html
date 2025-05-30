@@ -1,56 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>View in AR</title>
-    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
-    <style>
-      body {
-        margin: 0;
-        background: #f4f4f4;
-      }
-      model-viewer {
-        width: 100vw;
-        height: 100vh;
-      }
-      #ar-button {
-        position: absolute;
-        bottom: 16px;
-        left: 50%;
-        transform: translateX(-50%);
-        padding: 12px 24px;
-        background-color: #3f51b5;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
-        cursor: pointer;
-      }
-      #ar-prompt {
-        position: absolute;
-        top: 16px;
-        right: 16px;
-      }
-    </style>
-  </head>
-  <body>
-    <model-viewer 
-      src="RAT_V.1.glb"
-      ar 
-      ar-modes="webxr scene-viewer quick-look" 
-      camera-controls 
-      tone-mapping="neutral" 
-      poster="poster.webp" 
-      shadow-intensity="1" 
-      autoplay
-    >
-      <div class="progress-bar hide" slot="progress-bar">
-        <div class="update-bar"></div>
-      </div>
-      <button slot="ar-button" id="ar-button">View in your space</button>
-      <div id="ar-prompt">
-        <img src="https://modelviewer.dev/shared-assets/icons/hand.png" alt="AR prompt icon">
-      </div>
-    </model-viewer>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <title>View in AR</title>
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      background: #f4f4f4;
+    }
+    model-viewer {
+      width: 100vw;
+      height: 100vh;
+    }
+    #ar-button {
+      position: absolute;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 12px 24px;
+      background-color: #3f51b5;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #ar-prompt {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <model-viewer 
+    src="RAT_V.1.glb"
+    ios-src="RAT_V.1.usdz"
+    ar 
+    ar-modes="scene-viewer webxr quick-look" 
+    camera-controls 
+    tone-mapping="neutral" 
+    poster="poster.webp" 
+    shadow-intensity="1" 
+    autoplay
+  >
+    <div class="progress-bar hide" slot="progress-bar">
+      <div class="update-bar"></div>
+    </div>
+
+    <button slot="ar-button" id="ar-button">View in your space</button>
+
+    <div id="ar-prompt">
+      <img src="https://modelviewer.dev/shared-assets/icons/hand.png" alt="AR prompt icon">
+    </div>
+  </model-viewer>
+
+</body>
 </html>
