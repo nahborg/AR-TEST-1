@@ -44,6 +44,15 @@
       const progress = event.detail.totalProgress;
       updateBar.style.width = `${progress * 100}%`;
     });
+
+    // Quick fix: Automatically play first animation
+    modelViewer.addEventListener("load", () => {
+      const animations = modelViewer.availableAnimations;
+      if (animations && animations.length > 0) {
+        modelViewer.animationName = animations[0];
+        modelViewer.play();
+      }
+    });
   </script>
 
 </body>
