@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Model Variants</title>
+  <!-- ✅ Model Viewer -->
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <link rel="stylesheet" href="styles.css" />
   <style>
@@ -96,6 +97,44 @@
       background-color: transparent;
       z-index: 1;
     }
+
+    /* ✅ AR Button Styling */
+    #ar-button {
+      background-color: #000;
+      color: #fff;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      z-index: 5;
+    }
+
+    #ar-prompt {
+      position: absolute;
+      bottom: 80px;
+      right: 20px;
+      z-index: 4;
+    }
+
+    .progress-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: rgba(255,255,255,0.2);
+    }
+
+    .update-bar {
+      height: 100%;
+      width: 0%;
+      background: #0af;
+      transition: width 0.3s ease;
+    }
   </style>
 </head>
 <body>
@@ -131,30 +170,34 @@
   <model-viewer 
     id="modelViewer"
     src="tee_variants-opt.glb"
+    ios-src="tee_variants-opt.usdz"  <!-- ✅ iOS AR support -->
     environment-image="goegap_08k.jpg"
     tone-mapping="agx"
     exposure="1"
-    ar 
-    ar-modes="scene-viewer webxr quick-look" 
-    camera-controls 
-    poster="poster.webp" 
-    shadow-intensity="1" 
+    ar
+    ar-modes="webxr scene-viewer quick-look" <!-- ✅ Reliable AR order -->
+    camera-controls
+    poster="poster.webp"
+    shadow-intensity="1"
     autoplay
   >
+    <!-- 📦 Loading Bar -->
     <div class="progress-bar hide" slot="progress-bar">
       <div class="update-bar" id="update-bar"></div>
     </div>
 
+    <!-- 🔘 AR Button -->
     <button slot="ar-button" id="ar-button">
       View in your space
     </button>
 
+    <!-- 🖐️ AR Prompt -->
     <div id="ar-prompt">
-      <img src="https://modelviewer.dev/shared-assets/icons/hand.png" alt="AR prompt icon">
+      <img src="https://modelviewer.dev/shared-assets/icons/hand.png" alt="AR prompt icon" />
     </div>
   </model-viewer>
 
-  <!-- 🔧 Scripts -->
+  <!-- 🔧 Script -->
   <script>
     const modelViewer = document.querySelector("#modelViewer");
     const variantSelector = document.querySelector("#variant-selector");
@@ -164,29 +207,29 @@
     const grainSlider = document.querySelector('#grain-slider');
     const exposureSlider = document.querySelector('#exposure-slider');
 
-    // Initialize values
+    // ✅ Initialize values
     grain.style.opacity = grainSlider.value;
     modelViewer.exposure = exposureSlider.value;
 
-    // Grain opacity control
+    // 🌫️ Grain opacity control
     grainSlider.addEventListener('input', () => {
       grain.style.opacity = grainSlider.value;
     });
 
-    // Exposure control (scene + environment)
+    // 🔆 Exposure control
     exposureSlider.addEventListener('input', () => {
       const exposureValue = exposureSlider.value;
       modelViewer.exposure = exposureValue;
       modelViewer.setAttribute('exposure', exposureValue);
     });
 
-    // Update progress bar
+    // 📦 Progress bar update
     modelViewer.addEventListener('progress', (event) => {
       const progress = event.detail.totalProgress;
       updateBar.style.width = `${progress * 100}%`;
     });
 
-    // Animation & variant on load
+    // 🎬 Animation & Variant setup
     modelViewer.addEventListener("load", () => {
       const animations = modelViewer.availableAnimations;
       if (animations?.length > 0) {
@@ -200,7 +243,7 @@
       }
     });
 
-    // Variant change
+    // 🔁 Change variant on dropdown
     variantSelector.addEventListener("change", () => {
       modelViewer.variantName = variantSelector.value;
     });
