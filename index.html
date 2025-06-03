@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <title>Model Variants</title>
-  <!-- ✅ Model Viewer -->
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <link rel="stylesheet" href="styles.css" />
   <style>
@@ -25,7 +24,7 @@
       z-index: 0;
     }
 
-    /* 🔳 Grain overlay */
+    /* 🔳 Optional grain overlay */
     #grain {
       position: fixed;
       top: 0;
@@ -38,19 +37,9 @@
       opacity: 0.05;
       pointer-events: none;
       z-index: 2;
-      animation: grainMove 10s linear infinite;
     }
 
-    @keyframes grainMove {
-      0% {
-        background-position: 0 0;
-      }
-      100% {
-        background-position: 100% 100%;
-      }
-    }
-
-    /* 🔽 Variant Selector */
+    /* Variant dropdown */
     #variant-selector {
       position: absolute;
       top: 16px;
@@ -61,33 +50,16 @@
       border-radius: 8px;
     }
 
-    /* ⚙️ Controls panel */
-    #controls {
+    /* Grain Opacity Slider */
+    #grain-slider {
       position: absolute;
       bottom: 16px;
       left: 16px;
       z-index: 3;
-      background: rgba(0, 0, 0, 0.5);
-      padding: 12px;
-      border-radius: 12px;
-      color: white;
-      font-family: sans-serif;
-      font-size: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      width: 180px;
+      width: 160px;
     }
 
-    #controls label {
-      margin-bottom: 2px;
-    }
-
-    #controls input[type="range"] {
-      width: 100%;
-    }
-
-    /* 🧊 Model Viewer */
+    /* 3D viewer layer */
     model-viewer {
       position: absolute;
       top: 0;
@@ -96,44 +68,6 @@
       height: 100vh;
       background-color: transparent;
       z-index: 1;
-    }
-
-    /* ✅ AR Button Styling */
-    #ar-button {
-      background-color: #000;
-      color: #fff;
-      padding: 10px 16px;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      cursor: pointer;
-      position: absolute;
-      bottom: 20px;
-      right: 20px;
-      z-index: 5;
-    }
-
-    #ar-prompt {
-      position: absolute;
-      bottom: 80px;
-      right: 20px;
-      z-index: 4;
-    }
-
-    .progress-bar {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: 4px;
-      background: rgba(255,255,255,0.2);
-    }
-
-    .update-bar {
-      height: 100%;
-      width: 0%;
-      background: #0af;
-      transition: width 0.3s ease;
     }
   </style>
 </head>
@@ -155,81 +89,60 @@
     <option value="OLANA">OLANA</option>
   </select>
 
-  <!-- ⚙️ Controls UI -->
-  <div id="controls">
-    <!-- 🔆 Exposure Control -->
-    <label for="exposure-slider">Lighting Exposure</label>
-    <input type="range" id="exposure-slider" min="0.1" max="3" step="0.1" value="1" />
-
-    <!-- 🌫️ Grain Opacity Control -->
-    <label for="grain-slider">Grain Opacity</label>
-    <input type="range" id="grain-slider" min="0" max="0.5" step="0.01" value="0.05" />
-  </div>
+  <!-- Grain Opacity Slider -->
+  <input type="range" id="grain-slider" min="0" max="0.2" step="0.01" value="0.05" title="Grain Opacity" />
 
   <!-- 🧊 Model Viewer -->
   <model-viewer 
     id="modelViewer"
     src="tee_variants-opt.glb"
-    ios-src="tee_variants-opt.usdz"  <!-- ✅ iOS AR support -->
     environment-image="goegap_08k.jpg"
     tone-mapping="agx"
     exposure="1"
-    ar
-    ar-modes="webxr scene-viewer quick-look" <!-- ✅ Reliable AR order -->
-    camera-controls
-    poster="poster.webp"
-    shadow-intensity="1"
+    ar 
+    ar-modes="scene-viewer webxr quick-look" 
+    camera-controls 
+    poster="poster.webp" 
+    shadow-intensity="1" 
     autoplay
   >
-    <!-- 📦 Loading Bar -->
     <div class="progress-bar hide" slot="progress-bar">
       <div class="update-bar" id="update-bar"></div>
     </div>
 
-    <!-- 🔘 AR Button -->
     <button slot="ar-button" id="ar-button">
       View in your space
     </button>
 
-    <!-- 🖐️ AR Prompt -->
     <div id="ar-prompt">
-      <img src="https://modelviewer.dev/shared-assets/icons/hand.png" alt="AR prompt icon" />
+      <img src="https://modelviewer.dev/shared-assets/icons/hand.png" alt="AR prompt icon">
     </div>
   </model-viewer>
 
-  <!-- 🔧 Script -->
   <script>
     const modelViewer = document.querySelector("#modelViewer");
     const variantSelector = document.querySelector("#variant-selector");
     const updateBar = document.querySelector("#update-bar");
 
+    // Grain overlay and slider
     const grain = document.querySelector('#grain');
     const grainSlider = document.querySelector('#grain-slider');
-    const exposureSlider = document.querySelector('#exposure-slider');
 
-    // ✅ Initialize values
+    // Set initial opacity for grain overlay from slider value
     grain.style.opacity = grainSlider.value;
-    modelViewer.exposure = exposureSlider.value;
 
-    // 🌫️ Grain opacity control
+    // Update grain opacity dynamically on slider input
     grainSlider.addEventListener('input', () => {
       grain.style.opacity = grainSlider.value;
     });
 
-    // 🔆 Exposure control
-    exposureSlider.addEventListener('input', () => {
-      const exposureValue = exposureSlider.value;
-      modelViewer.exposure = exposureValue;
-      modelViewer.setAttribute('exposure', exposureValue);
-    });
-
-    // 📦 Progress bar update
+    // Update progress bar
     modelViewer.addEventListener('progress', (event) => {
       const progress = event.detail.totalProgress;
       updateBar.style.width = `${progress * 100}%`;
     });
 
-    // 🎬 Animation & Variant setup
+    // Animation & variant on load
     modelViewer.addEventListener("load", () => {
       const animations = modelViewer.availableAnimations;
       if (animations?.length > 0) {
@@ -243,7 +156,7 @@
       }
     });
 
-    // 🔁 Change variant on dropdown
+    // Variant change
     variantSelector.addEventListener("change", () => {
       modelViewer.variantName = variantSelector.value;
     });
