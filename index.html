@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Model Variants</title>
+  <title>Model Variants Gallery</title>
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
   <style>
     html, body {
@@ -12,8 +12,7 @@
       overflow: hidden;
     }
 
-    /* 🔁 Fullscreen Background Video */
-    #background-video {
+    video#background-video {
       position: fixed;
       top: 0;
       left: 0;
@@ -23,7 +22,6 @@
       z-index: 0;
     }
 
-    /* 🔳 Optional grain overlay */
     #grain {
       position: fixed;
       top: 0;
@@ -38,7 +36,6 @@
       z-index: 2;
     }
 
-    /* 🧊 Model Viewer */
     model-viewer {
       position: absolute;
       top: 0;
@@ -49,45 +46,30 @@
       z-index: 1;
     }
 
-    /* 🎛️ Controls container (bottom left) */
-    #controls-container {
+    #grain-slider {
       position: absolute;
       bottom: 16px;
       left: 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
       z-index: 3;
-    }
-
-    #grain-slider {
       width: 160px;
     }
 
-    #variant-selector {
-      padding: 6px 12px;
-      font-size: 16px;
+    /* ✅ AR button on center right */
+    #ar-button {
+      background-color: #000;
+      color: #fff;
+      padding: 10px 16px;
+      border: none;
       border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      position: absolute;
+      top: 50%;
+      right: 20px;
+      transform: translateY(-50%);
+      z-index: 5;
     }
 
-    /* 🕶️ AR Button centered */
-    #ar-button {
-  background-color: #000;
-  color: #fff;
-  padding: 10px 16px;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  cursor: pointer;
-  position: absolute;
-  top: 50%;
-  right: 20px; /* Distance from the right edge */
-  transform: translateY(-50%);
-  z-index: 5;
-}
-
-
-    /* 🖐️ AR Prompt */
     #ar-prompt {
       position: absolute;
       bottom: 80px;
@@ -95,14 +77,13 @@
       z-index: 4;
     }
 
-    /* 📊 Progress bar */
     .progress-bar {
       position: absolute;
       bottom: 0;
       left: 0;
       width: 100%;
       height: 4px;
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255,255,255,0.2);
     }
 
     .update-bar {
@@ -110,6 +91,45 @@
       width: 0%;
       background: #0af;
       transition: width 0.3s ease;
+    }
+
+    /* ✅ Variant Gallery */
+    #variant-gallery {
+      position: absolute;
+      bottom: 16px;
+      left: 190px; /* next to slider */
+      z-index: 3;
+      display: flex;
+      gap: 12px;
+    }
+
+    #variant-gallery button {
+      background: rgba(255, 255, 255, 0.8);
+      border: 2px solid transparent;
+      border-radius: 8px;
+      padding: 6px;
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.3s ease, border 0.3s ease;
+    }
+
+    #variant-gallery button:hover {
+      transform: scale(1.1);
+    }
+
+    #variant-gallery button img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 4px;
+      margin-bottom: 4px;
+    }
+
+    #variant-gallery button.active {
+      border-color: #007bff;
     }
   </style>
 </head>
@@ -124,14 +144,23 @@
   <!-- 🔳 Grain Overlay -->
   <div id="grain"></div>
 
-  <!-- 🎛️ Controls (Grain slider + Variant selector) -->
-  <div id="controls-container">
-    <input type="range" id="grain-slider" min="0" max="0.2" step="0.01" value="0.05" title="Grain Opacity" />
-    <select id="variant-selector">
-      <option value="RAT">RAT</option>
-      <option value="SIO">SIO</option>
-      <option value="OLANA">OLANA</option>
-    </select>
+  <!-- 🌫️ Grain Slider -->
+  <input type="range" id="grain-slider" min="0" max="0.2" step="0.01" value="0.05" title="Grain Opacity" />
+
+  <!-- 🎨 Variant Gallery -->
+  <div id="variant-gallery">
+    <button data-variant="RAT" class="active">
+      <img src="rat-thumb.jpg" alt="RAT" />
+      <span>RAT</span>
+    </button>
+    <button data-variant="SIO">
+      <img src="sio-thumb.jpg" alt="SIO" />
+      <span>SIO</span>
+    </button>
+    <button data-variant="OLANA">
+      <img src="olana-thumb.jpg" alt="OLANA" />
+      <span>OLANA</span>
+    </button>
   </div>
 
   <!-- 🧊 Model Viewer -->
@@ -152,37 +181,38 @@
       <div class="update-bar" id="update-bar"></div>
     </div>
 
-    <!-- 🔘 AR Button -->
     <button slot="ar-button" id="ar-button">
       View in your space
     </button>
 
-    <!-- 🖐️ AR Prompt -->
     <div id="ar-prompt">
       <img src="https://modelviewer.dev/shared-assets/icons/hand.png" alt="AR prompt icon">
     </div>
   </model-viewer>
 
-  <!-- 🧠 Script -->
+  <!-- 📜 Script -->
   <script>
     const modelViewer = document.querySelector("#modelViewer");
-    const variantSelector = document.querySelector("#variant-selector");
     const updateBar = document.querySelector("#update-bar");
-
     const grain = document.querySelector('#grain');
     const grainSlider = document.querySelector('#grain-slider');
+    const variantButtons = document.querySelectorAll('#variant-gallery button');
 
+    // Set initial grain opacity
     grain.style.opacity = grainSlider.value;
 
+    // Update grain opacity
     grainSlider.addEventListener('input', () => {
       grain.style.opacity = grainSlider.value;
     });
 
+    // Progress bar update
     modelViewer.addEventListener('progress', (event) => {
       const progress = event.detail.totalProgress;
       updateBar.style.width = `${progress * 100}%`;
     });
 
+    // Load animation + variant
     modelViewer.addEventListener("load", () => {
       const animations = modelViewer.availableAnimations;
       if (animations?.length > 0) {
@@ -196,8 +226,15 @@
       }
     });
 
-    variantSelector.addEventListener("change", () => {
-      modelViewer.variantName = variantSelector.value;
+    // Gallery variant change
+    variantButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const variant = button.getAttribute('data-variant');
+        modelViewer.variantName = variant;
+
+        variantButtons.forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+      });
     });
   </script>
 
